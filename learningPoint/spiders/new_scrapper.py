@@ -16,20 +16,20 @@ class QuotesSpider(scrapy.Spider):
 
         for counter in xrange(0, 57174, 10):
             url = base_url + str(counter)
-            print "Url to be scrapped : "+url
+            #print "Url to be scrapped : "+url
             yield scrapy.Request(url=url, callback=self.parse_page)
 
     def parse_page(self, response):
         page = response.xpath('//td[@id="col0"]').css('div.sites-search-result h3 a::attr(href)').extract()
         for i in page:
             link = response.urljoin(i)
-            print "next page", link
+            #print "next page", link
             # inp = input()
             try:
                 yield scrapy.Request(url=link, callback=self.parse_school)
             except:
                 print "could not go to indivitual school"
-                inp = input();
+                #inp = input();
 
     def parse_school(self, response):
         print "Scrapping school data: ", response
@@ -190,13 +190,33 @@ class QuotesSpider(scrapy.Spider):
                 if i.b is not None and i.b.string is not None and i.b.string.strip().find('Police') is not -1:
                     data['locality'] = page[val + 1].string.strip()
 
-            print "Showing data: ", data
-        except:
-            print "Error: ", response
+            #print "Showing data: ", data
 
-        check = Path("output/" + data['State'].lower() + ".csv")
-        if not check.is_file():
-            with open("output/" + data['State'].lower() + ".csv", "wb") as myFile:
+            if (data['Name of Institution']==unicode('') and data['Affiliation Number']==unicode('') and data['State']==unicode('') and data['District']==unicode('') and data['locality']==unicode('') and data['Postal Address']==unicode('') and data['Pin Code']==unicode('') and data['STD']==unicode('') and data['Phone Office 1']==unicode('') and data['Phone Office 2']==unicode('') and data['Phone Residence 1']==unicode('') and data['Phone Residence 2']==unicode('') and data['FAX No']==unicode('') and data['Email']==unicode('') and data['Website']==unicode('') and data['Year of Foundation']==unicode('') and data['Date of First Openning of School']==unicode('') and data['Name of Principal/ Head of Institution']==unicode('') and data['Sex']==unicode('') and data['Principal Education/Professional Qualifications']==unicode('') and data['Number of Experience Years']==unicode('') and data['Administrative']==unicode('') and data['Teaching']==unicode('') and data['Status of The School']==unicode('') and data['Type of affiliation']==unicode('') and data['Affiliation Period From']==unicode('') and data['Affiliation Period To']==unicode('') and data['Name of Trust/ Society/ Managing Committee']==unicode('') and data['extra']==unicode('')):
+                
+                
+                with open("partial_missed.csv","a") as total_failed:
+                    fieldnames = ['links']
+                    writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
+                    writer.writerow({'links' : response})
+            
+
+            check = Path("output/" + data['State'].lower() + ".csv")
+            if not check.is_file():
+                with open("output/" + data['State'].lower() + ".csv", "wb") as myFile:
+                    fieldnames = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
+                                  'Postal Address', 'Pin Code', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
+                                  'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
+                                  'Date of First Openning of School', 'Name of Principal/ Head of Institution', 'Sex',
+                                  'Principal Education/Professional Qualifications', 'Number of Experience Years',
+                                  'Administrative', 'Teaching', 'Status of The School', 'Type of affiliation',
+                                  'Affiliation Period From', 'Affiliation Period To',
+                                  'Name of Trust/ Society/ Managing Committee', 'extra']
+
+                    writer = csv.DictWriter(myFile, fieldnames=fieldnames)
+                    writer.writeheader()
+
+            with open("output/" + data['State'].lower() + ".csv", "a") as myFile:
                 fieldnames = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
                               'Postal Address', 'Pin Code', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
                               'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
@@ -207,53 +227,48 @@ class QuotesSpider(scrapy.Spider):
                               'Name of Trust/ Society/ Managing Committee', 'extra']
 
                 writer = csv.DictWriter(myFile, fieldnames=fieldnames)
-                writer.writeheader()
 
-        with open("output/" + data['State'].lower() + ".csv", "a") as myFile:
-            fieldnames = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
-                          'Postal Address', 'Pin Code', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
-                          'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
-                          'Date of First Openning of School', 'Name of Principal/ Head of Institution', 'Sex',
-                          'Principal Education/Professional Qualifications', 'Number of Experience Years',
-                          'Administrative', 'Teaching', 'Status of The School', 'Type of affiliation',
-                          'Affiliation Period From', 'Affiliation Period To',
-                          'Name of Trust/ Society/ Managing Committee', 'extra']
+                writer.writerow({
+                    'Name': data['Name of Institution'],
+                    'Affiliation Number': data['Affiliation Number'],
+                    'State': data['State'],
+                    'City': data['District'],
+                    'Locality': data['locality'],
+                    'Country': 'India',
+                    'Postal Address': data['Postal Address'],
+                    'PinCode': data['Pin Code'],
+                    'Phone1': data['Phone Office 1'],
+                    'Phone2': data['Phone Office 2'],
+                    'Phone3': data['Phone Residence 1'],
+                    'Phone4': data['Phone Residence 2'],
+                    'Phone5': '',
+                    'Images URL': '',
+                    'Working Hours': 'Monday - Friday: 10 AM - 5 PM, Saturday: 10 AM - 1 PM',
+                    'Details': 'Contact us or use the live chat feature to get more details about our school.',
+                    'Services Offered': '',
+                    'FAX No': data['FAX No'],
+                    'Mail': data['Email'],
+                    'Website': data['Website'],
+                    'Year of Foundation': data['Year of Foundation'],
+                    'Date of First Openning of School': data['Date of First Openning of School'],
+                    'Name of Principal/ Head of Institution': data['Name of Principal/ Head of Institution'],
+                    'Sex': data['Sex'],
+                    'Principal Education/Professional Qualifications': data[
+                        'Principal Education/Professional Qualifications'],
+                    'Number of Experience Years': data['Number of Experience Years'],
+                    'Administrative': data['Administrative'],
+                    'Teaching': data['Teaching'],
+                    'Status of The School': data['Status of The School'],
+                    'Type of affiliation': data['Type of affiliation'],
+                    'Affiliation Period From': data['Affiliation Period From'],
+                    'Affiliation Period To': data['Affiliation Period To'],
+                    'Name of Trust/ Society/ Managing Committee': data['Name of Trust/ Society/ Managing Committee'],
+                    'extra': data['extra']})
 
-            writer = csv.DictWriter(myFile, fieldnames=fieldnames)
-
-            writer.writerow({
-                'Name': data['Name of Institution'],
-                'Affiliation Number': data['Affiliation Number'],
-                'State': data['State'],
-                'City': data['District'],
-                'Locality': data['locality'],
-                'Country': 'India',
-                'Postal Address': data['Postal Address'],
-                'PinCode': data['Pin Code'],
-                'Phone1': data['Phone Office 1'],
-                'Phone2': data['Phone Office 2'],
-                'Phone3': data['Phone Residence 1'],
-                'Phone4': data['Phone Residence 2'],
-                'Phone5': '',
-                'Images URL': '',
-                'Working Hours': 'Monday - Friday: 10 AM - 5 PM, Saturday: 10 AM - 1 PM',
-                'Details': 'Contact us or use the live chat feature to get more details about our school.',
-                'Services Offered': '',
-                'FAX No': data['FAX No'],
-                'Mail': data['Email'],
-                'Website': data['Website'],
-                'Year of Foundation': data['Year of Foundation'],
-                'Date of First Openning of School': data['Date of First Openning of School'],
-                'Name of Principal/ Head of Institution': data['Name of Principal/ Head of Institution'],
-                'Sex': data['Sex'],
-                'Principal Education/Professional Qualifications': data[
-                    'Principal Education/Professional Qualifications'],
-                'Number of Experience Years': data['Number of Experience Years'],
-                'Administrative': data['Administrative'],
-                'Teaching': data['Teaching'],
-                'Status of The School': data['Status of The School'],
-                'Type of affiliation': data['Type of affiliation'],
-                'Affiliation Period From': data['Affiliation Period From'],
-                'Affiliation Period To': data['Affiliation Period To'],
-                'Name of Trust/ Society/ Managing Committee': data['Name of Trust/ Society/ Managing Committee'],
-                'extra': data['extra']})
+        except:
+            print "Error: ", response
+            with open("total_missed.csv","a") as total_failed:
+                fieldnames = ['links']
+                writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
+                writer.writerow({'links' : response})
+         
