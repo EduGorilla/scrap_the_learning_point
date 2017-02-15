@@ -136,19 +136,23 @@ class QuotesSpider(scrapy.Spider):
                 phoneNumber1 = data['Phone No. with STD Code'] + page[point + 1].string.strip();
                 data['Phone Office 1'] = ''.join(filter(str.isdigit, phoneNumber1));
             except:
-                print "Phone Office 1 not found"
+                #print "Phone Office 1 not found"
+                data['Phone Office 1'] = unicode('')
             try:
                 data['Phone Office 2'] = data['Phone No. with STD Code'] + page[point + 2].string.strip();
             except:
-                print "Phone Office 2 not found"
+                #print "Phone Office 2 not found"
+                data['Phone Office 2'] = unicode('')
             try:
                 data['Phone Residence 1'] = data['Phone No. with STD Code'] + page[point + 4].string.strip();
             except:
-                print "Phone Residence 1 not found"
+                #print "Phone Residence 1 not found"
+                data['Phone Residence 1'] = unicode('')
             try:
                 data['Phone Residence 2'] = data['Phone No. with STD Code'] + page[point + 5].string.strip();
             except:
-                print "Phone Residence 2 not found"
+                #print "Phone Residence 2 not found"
+                data['Phone Residence 2'] = unicode('')
 
             for val, i in enumerate(page):
                 if i.b is not None and i.b.string is not None and i.b.string.strip().find('FAX No') is not -1:
@@ -294,5 +298,5 @@ class QuotesSpider(scrapy.Spider):
             with open("total_missed.csv","a") as total_failed:
                 fieldnames = ['links']
                 writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
-                writer.writerow({'links' : str(response+str(e))});
+                writer.writerow({'links' : str(str(response)+str(e))});
          
