@@ -2,6 +2,7 @@ import csv
 import scrapy
 from bs4 import BeautifulSoup
 from pathlib import Path
+import logging
 
 
 class QuotesSpider(scrapy.Spider):
@@ -34,7 +35,7 @@ class QuotesSpider(scrapy.Spider):
     def parse_school(self, response):
         print "Scrapping school data: ", response;
         dataToScrap = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
-                      'Postal Address', 'Pin Code', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
+                      'Postal Address', 'Pin Code', 'STD', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
                       'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
                       'Date of First Openning of School', 'Name of Principal/ Head of Institution', 'Sex',
                       'Principal Education/Professional Qualifications', 'Number of Experience Years',
@@ -49,6 +50,7 @@ class QuotesSpider(scrapy.Spider):
             data['District'] = unicode('')
             data['Postal Address'] = unicode('')
             data['Pin Code'] = unicode('')
+            data['STD'] = unicode('')
             data['Phone Office 1'] = unicode('')
             data['Phone Office 2'] = unicode('')
             data['Phone Residence 1'] = unicode('')
@@ -133,23 +135,23 @@ class QuotesSpider(scrapy.Spider):
                 print "Office found : "+str(e);
 
             try:
-                phoneNumber1 = data['Phone No. with STD Code'] + page[point + 1].string.strip();
+                phoneNumber1 = data['STD'] + page[point + 1].string.strip();
                 data['Phone Office 1'] = ''.join(filter(str.isdigit, phoneNumber1));
             except:
                 #print "Phone Office 1 not found"
                 data['Phone Office 1'] = unicode('')
             try:
-                data['Phone Office 2'] = data['Phone No. with STD Code'] + page[point + 2].string.strip();
+                data['Phone Office 2'] = data['STD'] + page[point + 2].string.strip();
             except:
                 #print "Phone Office 2 not found"
                 data['Phone Office 2'] = unicode('')
             try:
-                data['Phone Residence 1'] = data['Phone No. with STD Code'] + page[point + 4].string.strip();
+                data['Phone Residence 1'] = data['STD'] + page[point + 4].string.strip();
             except:
                 #print "Phone Residence 1 not found"
                 data['Phone Residence 1'] = unicode('')
             try:
-                data['Phone Residence 2'] = data['Phone No. with STD Code'] + page[point + 5].string.strip();
+                data['Phone Residence 2'] = data['STD'] + page[point + 5].string.strip();
             except:
                 #print "Phone Residence 2 not found"
                 data['Phone Residence 2'] = unicode('')
@@ -294,9 +296,12 @@ class QuotesSpider(scrapy.Spider):
                     'extra': data['extra']})
 
         except Exception as e:
+            print "\n\n\n\n"
             print "Error: ", response
+            print "Error exception: ", e
             with open("total_missed.csv","a") as total_failed:
-                fieldnames = ['links']
+                fieldnames = ['response','error message']
                 writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
-                writer.writerow({'links' : str(str(response)+str(e))});
-         
+                writer.writerow({'response' : response, 'error message':e});
+            raise
+            print "\n\n\n"
