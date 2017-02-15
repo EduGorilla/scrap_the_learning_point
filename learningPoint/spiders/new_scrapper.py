@@ -235,7 +235,7 @@ class QuotesSpider(scrapy.Spider):
             
 
             check = Path("output/" + data['State'].lower() + ".csv")
-            fieldnames = ['Name', 'Affiliation Number', 'State', 'City', 'Locality',
+            fieldnames = ['Name', 'Affiliation Number', 'State', 'City', 'Locality', 'Country',
                           'Postal Address', 'PinCode', 'Phone1', 'Phone2', 'Phone3', 'Phone4', 'Phone5',
                           'Images URL', 'Working Hours', 'Details', 'Services Offered',
                           'FAX No', 'Mail', 'Website', 'Year of Foundation',
@@ -294,5 +294,5 @@ class QuotesSpider(scrapy.Spider):
             with open("total_missed.csv","a") as total_failed:
                 fieldnames = ['links']
                 writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
-                writer.writerow({'links' : response+str(e)});
+                writer.writerow({'links' : str(response+str(e))});
          
