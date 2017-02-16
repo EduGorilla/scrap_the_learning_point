@@ -227,7 +227,7 @@ class QuotesSpider(scrapy.Spider):
             try:
                 for val, i in enumerate(page):
                     if i.b is not None and i.b.string is not None and i.b.string.strip().find('Teaching') is not -1:
-                    data['Teaching'] = page[val + 1].string.strip()
+                    	data['Teaching'] = page[val + 1].string.strip()
             except:
                 data['Teaching'] = unicode('')
 
