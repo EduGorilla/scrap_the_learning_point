@@ -33,7 +33,7 @@ class QuotesSpider(scrapy.Spider):
                 #inp = input();
 
     def parse_school(self, response):
-        print "Scrapping school data: ", response;
+        #print "Scrapping school data: ", response;
         dataToScrap = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
                       'Postal Address', 'Pin Code', 'STD', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
                       'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
@@ -44,80 +44,20 @@ class QuotesSpider(scrapy.Spider):
                       'Name of Trust/ Society/ Managing Committee', 'extra'];
         try:
             data = {}
-            data['Name of Institution'] = unicode('')
-            data['Affiliation Number'] = unicode('')
-            data['State'] = unicode('')
-            data['District'] = unicode('')
-            data['Postal Address'] = unicode('')
-            data['Pin Code'] = unicode('')
-            data['STD'] = unicode('')
-            data['Phone Office 1'] = unicode('')
-            data['Phone Office 2'] = unicode('')
-            data['Phone Residence 1'] = unicode('')
-            data['Phone Residence 2'] = unicode('')
-            data['FAX No'] = unicode('')
-            data['Email'] = unicode('')
-            data['Website'] = unicode('')
-            data['Year of Foundation'] = unicode('')
-            data['Date of First Openning of School'] = unicode('')
-            data['Name of Principal/ Head of Institution'] = unicode('')
-            data['Sex'] = unicode('')
-            data['Principal Education/Professional Qualifications'] = unicode('')
-            data['Number of Experience Years'] = unicode('')
-            data['Administrative'] = unicode('')
-            data['Teaching'] = unicode('')
-            data['Status of The School'] = unicode('')
-            data['Type of affiliation'] = unicode('')
-            data['Affiliation Period From'] = unicode('')
-            data['Affiliation Period To'] = unicode('')
-            data['Name of Trust/ Society/ Managing Committee'] = unicode('')
-            data['locality'] = unicode('')
-            data['extra'] = unicode('')
+            for fieldValue in dataToScrap:
+                data[fieldValue] = unicode('');
 
             point = 0
             page = BeautifulSoup(response.css('body').extract()[0], 'html.parser').find_all('td')
 
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip() == unicode('Name of Institution'):
-                        data['Name of Institution'] = page[val + 1].string.strip();
-            except Exception as e:
-                print "Name not found : "+str(e);
-
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip() == unicode('Affiliation Number'):
-                        data['Affiliation Number'] = page[val + 1].string.strip();
-            except Exception as e:
-                print "Affiliation not found : "+str(e);
-
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip() == unicode('State'):
-                        data['State'] = page[val + 1].string.strip();
-            except Exception as e:
-                print "State not found : "+str(e);
-
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip() == unicode('District'):
-                        data['District'] = page[val + 1].string.strip();
-            except Exception as e:
-                print "District not found : "+str(e);
-
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip() == unicode('Phone No. with STD Code'):
-                        data['Phone No. with STD Code'] = page[val + 1].string.strip();
-            except Exception as e:
-                print "Phone No not found : "+str(e);
-
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip() == unicode('Postal Address'):
-                        data['Postal Address'] = page[val + 1].string.strip();
-            except Exception as e:
-                print "Postal Address : "+str(e);
+            for fieldValue in dataToScrap:
+                try:
+                    for val, i in enumerate(page):
+                        if i.b is not None and i.b.string is not None and i.b.string.strip().find(fieldValue) is not -1:
+                            data[fieldValue] = page[val + 1].string.strip();
+                except Exception as e:
+                    print fieldValue + " not found : " + str(e);
+                    data[fieldValue] = unicode('N/A');
 
             try:
                 for val, i in enumerate(page):
@@ -125,14 +65,6 @@ class QuotesSpider(scrapy.Spider):
                         data['Pin Code'] = page[val + 1].string.strip();
             except Exception as e:
                 print "Pin Code not found : "+str(e);
-
-            try:
-                for val, i in enumerate(page):
-                    if i.b is not None and i.b.string is not None and i.b.string.strip().find('Office') is not -1:
-                        # data['Phone Office 1'] = page[val+1].string.strip()
-                        point = val;
-            except Exception as e:
-                print "Office found : "+str(e);
 
             try:
                 phoneNumber1 = data['STD'] + page[point + 1].string.strip();
@@ -156,88 +88,20 @@ class QuotesSpider(scrapy.Spider):
                 #print "Phone Residence 2 not found"
                 data['Phone Residence 2'] = unicode('')
 
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('FAX No') is not -1:
-                    data['FAX No'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Email') is not -1:
-                    data['Email'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Website') is not -1:
-                    data['Website'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find(
-                        'Year of Foundation') is not -1:
-                    data['Year of Foundation'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Openning') is not -1:
-                    data['Date of First Openning of School'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Head') is not -1:
-                    data['Name of Principal/ Head of Institution'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip() == 'Sex':
-                    data['Sex'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Qualifications') is not -1:
-                    data['Principal Education/Professional Qualification'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Experience') is not -1:
-                    data['Number of Experience Years'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Administrative') is not -1:
-                    data['Administrative'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Teaching') is not -1:
-                    data['Teaching'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find(
-                        'Status of The School') is not -1:
-                    data['Status of The School'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find(
-                        'Type of affiliation') is not -1:
-                    data['Type of affiliation'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find(
-                        'Affiliation Period From') is not -1:
-                    data['Affiliation Period From'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find(
-                        'Affiliation Period To') is not -1:
-                    data['Affiliation Period To'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Trust') is not -1:
-                    data['Name of Trust/ Society/ Managing Committee'] = page[val + 1].string.strip()
-
-            for val, i in enumerate(page):
-                if i.b is not None and i.b.string is not None and i.b.string.strip().find('Police') is not -1:
-                    data['locality'] = page[val + 1].string.strip()
-
             #print "Showing data: ", data
 
-            if (data['Name of Institution']==unicode('') and data['Affiliation Number']==unicode('') and data['State']==unicode('') and data['District']==unicode('') and data['locality']==unicode('') and data['Postal Address']==unicode('') and data['Pin Code']==unicode('') and data['STD']==unicode('') and data['Phone Office 1']==unicode('') and data['Phone Office 2']==unicode('') and data['Phone Residence 1']==unicode('') and data['Phone Residence 2']==unicode('') and data['FAX No']==unicode('') and data['Email']==unicode('') and data['Website']==unicode('') and data['Year of Foundation']==unicode('') and data['Date of First Openning of School']==unicode('') and data['Name of Principal/ Head of Institution']==unicode('') and data['Sex']==unicode('') and data['Principal Education/Professional Qualifications']==unicode('') and data['Number of Experience Years']==unicode('') and data['Administrative']==unicode('') and data['Teaching']==unicode('') and data['Status of The School']==unicode('') and data['Type of affiliation']==unicode('') and data['Affiliation Period From']==unicode('') and data['Affiliation Period To']==unicode('') and data['Name of Trust/ Society/ Managing Committee']==unicode('') and data['extra']==unicode('')):
-                
-                
+            hasData = False;
+
+            for fieldValue in dataToScrap:
+                if(data[fieldValue]!=unicode('')):
+                    hasData = True;
+
+            if(hasData==False):
                 with open("partial_missed.csv","a") as total_failed:
                     fieldnames = ['links']
                     writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
-                    writer.writerow({'links' : response})
+                    writer.writerow({'links' : response});
+                    return;
             
 
             check = Path("output/" + data['State'].lower() + ".csv")
