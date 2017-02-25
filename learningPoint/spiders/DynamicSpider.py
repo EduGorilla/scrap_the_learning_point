@@ -8,6 +8,10 @@ import logging
 class DynamicSpider(scrapy.Spider):
     name = "dynamicscrapper"
 
+    count_total_scrapped = 0;
+    count_no_data = 0;
+    count_missed_totally = 0;
+
     #  start_urls=['http://www.thelearningpoint.net/home/school-listings/cbse-13/Bayonet-School-Bayonet-School-C-O-Infantry-School--Mhow-1030454']
 
     def start_requests(self):
@@ -33,7 +37,10 @@ class DynamicSpider(scrapy.Spider):
                 #inp = input();
 
     def parse_school(self, response):
-        print "Scrapping school data: ", response;
+        #print "Scrapping school data: ", response;
+        self.count_total_scrapped = self.count_total_scrapped+1;
+        if(self.count_total_scrapped%10==0):
+            print "Scrapped count_total_scrapped : "+str(self.count_total_scrapped)+" Count_no_data : "+str(self.count_no_data)+" Count_missed_totally : "+str(self.count_missed_totally);
         dataToScrap = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
                       'Postal Address', 'Pin Code', 'STD', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
                       'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
@@ -104,6 +111,7 @@ class DynamicSpider(scrapy.Spider):
                     fieldnames = ['links']
                     writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
                     writer.writerow({'links' : response});
+                    self.count_no_data = self.count_no_data + 1;
                     return;
             
 
@@ -165,6 +173,7 @@ class DynamicSpider(scrapy.Spider):
         except Exception as e:
             print "\n\n\n\n"
             print "Error: ", response
+            self.count_missed_totally = self.count_missed_totally + 1;
             print "Error exception: ", e
             with open("status/" + "total_missed.csv","a") as total_failed:
                 fieldnames = ['response','error message']
