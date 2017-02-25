@@ -5,7 +5,7 @@ from pathlib import Path
 import logging
 
 
-class QuotesSpider(scrapy.Spider):
+class DynamicSpider(scrapy.Spider):
     name = "dynamicscrapper"
 
     #  start_urls=['http://www.thelearningpoint.net/home/school-listings/cbse-13/Bayonet-School-Bayonet-School-C-O-Infantry-School--Mhow-1030454']
@@ -33,7 +33,7 @@ class QuotesSpider(scrapy.Spider):
                 #inp = input();
 
     def parse_school(self, response):
-        #print "Scrapping school data: ", response;
+        print "Scrapping school data: ", response;
         dataToScrap = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
                       'Postal Address', 'Pin Code', 'STD', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
                       'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
@@ -96,15 +96,18 @@ class QuotesSpider(scrapy.Spider):
                 if(data[fieldValue]!=unicode('')):
                     hasData = True;
 
+            if(data['Name of Institution']==unicode('')):
+                hasData = False;
+
             if(hasData==False):
-                with open("partial_missed.csv","a") as total_failed:
+                with open("status/" + "partial_missed.csv","a") as total_failed:
                     fieldnames = ['links']
                     writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
                     writer.writerow({'links' : response});
                     return;
             
 
-            check = Path("output/" + data['State'].lower() + ".csv")
+            check = Path("output/" + data['State'].lower() + ".csv");
             fieldnames = ['Name', 'Affiliation Number', 'State', 'City', 'Locality', 'Country',
                           'Postal Address', 'PinCode', 'Phone1', 'Phone2', 'Phone3', 'Phone4', 'Phone5',
                           'Images URL', 'Working Hours', 'Details', 'Services Offered',
@@ -163,9 +166,8 @@ class QuotesSpider(scrapy.Spider):
             print "\n\n\n\n"
             print "Error: ", response
             print "Error exception: ", e
-            with open("total_missed.csv","a") as total_failed:
+            with open("status/" + "total_missed.csv","a") as total_failed:
                 fieldnames = ['response','error message']
                 writer = csv.DictWriter(total_failed,fieldnames=fieldnames)
                 writer.writerow({'response' : response, 'error message':e});
-            raise
-            print "\n\n\n"
+            print "\n\n\n";
