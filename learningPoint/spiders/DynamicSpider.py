@@ -1,7 +1,5 @@
 import csv
 import scrapy
-from mercurial.crecord import curseschunkselector
-
 from bs4 import BeautifulSoup
 from pathlib import Path
 import logging
@@ -51,7 +49,7 @@ class DynamicSpider(scrapy.Spider):
 
     def parse_school(self, response):
         current_url = response.request.url;
-        print "Scrapping school data: ", current_url;
+        #print "Scrapping school data: ", current_url;
         self.count_total_scrapped = self.count_total_scrapped+1;
         if(self.count_total_scrapped%10==0):
             print "Scrapped count_total_scrapped : "+str(self.count_total_scrapped)+" Count_no_data : "+str(self.count_no_data)+" Count_missed_totally : "+str(self.count_missed_totally);

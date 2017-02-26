@@ -1,2 +1,2 @@
 import os
-os.system('scrapy crawl newdynamicscrapper --nolog')
+os.system('python main.py > mylog.txt 2>&1 &')
