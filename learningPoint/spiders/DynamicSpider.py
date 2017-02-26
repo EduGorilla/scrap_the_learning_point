@@ -18,6 +18,7 @@ class DynamicSpider(scrapy.Spider):
     name = "dynamicscrapper"
 
     count_total_scrapped = 0;
+    count_successfully_scrapped = 0;
     count_no_data = 0;
     count_missed_totally = 0;
 
@@ -31,7 +32,7 @@ class DynamicSpider(scrapy.Spider):
         make_sure_path_exists('status');
         for counter in xrange(0, 57174, 10):
             url = base_url + str(counter)
-            #print "Url to be scrapped : "+url
+            print "Url to be scrapped for "+str(self.count_total_scrapped)+" : "+url;
             yield scrapy.Request(url=url, callback=self.parse_page)
 
     def parse_page(self, response):
@@ -49,10 +50,10 @@ class DynamicSpider(scrapy.Spider):
 
     def parse_school(self, response):
         current_url = response.request.url;
-        #print "Scrapping school data: ", current_url;
+        print "Scrapping school data: ", current_url;
         self.count_total_scrapped = self.count_total_scrapped+1;
         if(self.count_total_scrapped%10==0):
-            print "Scrapped count_total_scrapped : "+str(self.count_total_scrapped)+" Count_no_data : "+str(self.count_no_data)+" Count_missed_totally : "+str(self.count_missed_totally);
+            print "Scrapped count_total_scrapped : "+str(self.count_total_scrapped)+" count_successfully_scrapped : "+str(self.count_successfully_scrapped)+" Count_no_data : "+str(self.count_no_data)+" Count_missed_totally : "+str(self.count_missed_totally);
         dataToScrap = ['Name of Institution', 'Affiliation Number', 'State', 'District', 'locality',
                       'Postal Address', 'Pin Code', 'STD', 'Phone Office 1', 'Phone Office 2', 'Phone Residence 1',
                       'Phone Residence 2', 'FAX No', 'Email', 'Website', 'Year of Foundation',
@@ -82,7 +83,7 @@ class DynamicSpider(scrapy.Spider):
 
             try:
                 for tdCount, tdValue in enumerate(tdNodes):
-                    if tdValue.b is not None and tdValue.b.string is not None and tdValue.b.string.strip().lower().find('pin') is not -1:
+                    if tdValue.b is not None and tdValue.b.string is not None and tdValue.b.string.lower().find('pin') is not -1:
                         data['Pin Code'] = tdNodes[tdCount + 1].string.strip();
             except Exception as e:
                 print "Pin Code not found : "+str(e);
@@ -233,7 +234,9 @@ class DynamicSpider(scrapy.Spider):
                     'Name of Trust/ Society/ Managing Committee': data['Name of Trust/ Society/ Managing Committee'],
                     'extra': data['extra'],
                     'Source URL': current_url
-                })
+                });
+                self.count_successfully_scrapped = self.count_successfully_scrapped + 1;
+                print "Successfully Scrapped school data: ", current_url;
 
         except Exception as e:
             print "\n\n\n\n"
