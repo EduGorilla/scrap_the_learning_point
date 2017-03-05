@@ -32,7 +32,7 @@ class DynamicSpider(scrapy.Spider):
         make_sure_path_exists('status');
         for counter in xrange(0, 55110, 10):
             url = base_url + str(counter)
-            #print "Url to be scrapped for "+str(self.count_total_scrapped)+" : "+url;
+            print "Url to be scrapped for "+str(self.count_total_scrapped)+" : "+url;
             yield scrapy.Request(url=url, callback=self.parse_page)
 
     def parse_page(self, response):
@@ -265,7 +265,7 @@ class DynamicSpider(scrapy.Spider):
                     'Source URL': current_url
                 });
                 self.count_successfully_scrapped = self.count_successfully_scrapped + 1;
-                print "Successfully Scrapped school data: ", current_url;
+                #print "Successfully Scrapped school data: ", current_url;
 
         except Exception as e:
             print "\n\n\n\n"
