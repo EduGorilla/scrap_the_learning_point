@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import os
 import traceback
+import json
+import urllib2
 
 
 def make_sure_path_exists(directoryName):
@@ -30,7 +32,7 @@ class DynamicSpider(scrapy.Spider):
         print "Scraping Started for "+base_url+". Please wait..."
         make_sure_path_exists('output');
         make_sure_path_exists('status');
-        for counter in xrange(0, 55110, 10):
+        for counter in xrange(400, 55110, 10):
             url = base_url + str(counter)
             print "Url to be scrapped for "+str(self.count_total_scrapped)+" : "+url;
             yield scrapy.Request(url=url, callback=self.parse_page)
@@ -214,6 +216,22 @@ class DynamicSpider(scrapy.Spider):
                           'Administrative', 'Teaching', 'Status of The School', 'Type of affiliation',
                           'Affiliation Period From', 'Affiliation Period To',
                           'Name of Trust/ Society/ Managing Committee', 'extra', 'Source URL'];
+            
+
+            if data['State'] == "" or data['State'] == None:
+                if data['Pin Code'] != "" and data['Pin Code'] != None:
+                	print data['Pin Code']
+                	pinapi = "http://postalpincode.in/api/pincode/"+str(data['Pin Code'])
+                	res=urllib2.urlopen(pinapi).read()
+                	js1=json.loads(res)
+                	if js1['Status']=="Success":
+                		data['State']=js1['PostOffice'][0]['State']
+                	else:
+                		data['State']="State_NA"
+                else:
+                	data['State']="State_NA"
+
+
             checkFilePath = Path("output/" + data['State'].lower() + ".csv");
             if not checkFilePath.is_file():
                 with open("output/" + data['State'].lower() + ".csv", "wb") as myFile:
