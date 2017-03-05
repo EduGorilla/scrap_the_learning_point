@@ -2,7 +2,7 @@ import csv
 import scrapy
 from bs4 import BeautifulSoup
 from pathlib import Path
-import logging
+import re
 import os
 import traceback
 
@@ -39,7 +39,7 @@ class DynamicSpider(scrapy.Spider):
         schoolLinks = response.xpath('//td[@id="col0"]').css('div.sites-search-result h3 a::attr(href)').extract()
         for schoolLink in schoolLinks:
             link = response.urljoin(schoolLink);
-            #link = "http://www.thelearningpoint.net/home/school-listings/maharashtra-ssc-39/2306034-TOP-HIGH-SCHOOL--TOP";
+            link = "http://www.thelearningpoint.net/home/school-listings/icse-isc-4/Sacred-Heart-Convent-School---Barnala-Road-Raikot-Ludhiana-141-109";
             #print "next schoolLinks", link
             # inp = input()
             try:
@@ -122,6 +122,26 @@ class DynamicSpider(scrapy.Spider):
                 hasData = False;
 
             if (hasData == False):
+                try:
+                    if (unicode('') == data['Name of Institution']):
+                        titleHeading = bodyNode.find("span", {"id": "sites-page-title"}).string.strip();
+                        # print "titleHeading = "+str(titleHeading);
+                        if titleHeading is not None:
+                            isTitleContainsPin = re.search(r"""(?P<prefix>\d{3})  # three-digit prefix
+                                                                      (?:-)?  # optional hyphen
+                                                                      (?:\s)?  # optional hyphen
+                                                                      (?P<suffix>\d{3})?  # optional three-digit suffix
+                                                                      \s*$  # trailing blanks, if any"""
+                                                           , "abcd"
+                                                           , re.VERBOSE);
+                            if(isTitleContainsPin is not None):
+                                # print "isTitleContainsPin = "+str(isTitleContainsPin.groups());
+                                titleHeadingArray = titleHeading.split(',');
+                                if len(titleHeadingArray)>1:
+                                    data['Name of Institution'] = titleHeadingArray[0];
+                except Exception as e:
+                    print "Title node not found : ", str(e);
+
                 # Trying to fetch Non-Table data:
                 try:
                     for divCount, divValue in enumerate(divNodes):
@@ -140,16 +160,22 @@ class DynamicSpider(scrapy.Spider):
                                 elif (boldHeading.strip().lower().find('pin')) is not -1:
                                     data['Pin Code'] = boldContent;
                         fontNode = divValue.find('font', {'face': 'times new roman, serif'});
-                        if fontNode is not None and fontNode.text is not None and fontNode.text.strip().find('Contact Details (Mobile Number/Email):') is not -1:
+                        if fontNode is not None and fontNode.text is not None and fontNode.text.strip().find('Contact Details') is not -1:
                             contactDetailDiv = divValue.find_next_sibling("div");
+                            contactDetails = contactDetailDiv.string.strip();
                             #print "divValue : " + str(divValue);
                             #print "fontValue : " + str(fontNode.string);
-                            #print "ContactDetailDiv : "+str(contactDetailDiv.string);
-                            contactDetails = contactDetailDiv.string.strip();
-                            contactDetailArray = contactDetails.split('/');
+                            #print "ContactDetailDiv : "+str(contactDetails);
+                            contactDetailArray = [];
+                            if contactDetails.find('/') is not -1:
+                                contactDetailArray = contactDetails.split('/');
+                            elif contactDetails.find('[E]') is not -1:
+                                contactDetailArray = contactDetails.split(' [E]');
+                            #print "contactDetailArray : " + str(contactDetailArray);
                             if len(contactDetailArray) == 2:
                                 contactPhoneNumber = contactDetailArray[0];
                                 contactEmailId = contactDetailArray[1];
+                                contactPhoneNumber = contactPhoneNumber.replace("[O]", "");
                                 if contactPhoneNumber and not contactPhoneNumber.isspace():
                                     data['Phone Office 1'] = contactPhoneNumber;
                                 if contactEmailId and not contactEmailId.isspace():
@@ -193,6 +219,9 @@ class DynamicSpider(scrapy.Spider):
                 with open("output/" + data['State'].lower() + ".csv", "wb") as myFile:
                     writer = csv.DictWriter(myFile, fieldnames=fieldnames)
                     writer.writeheader();
+
+            if data['State'] == "" or data['State'] == None:
+                data['State'] = "State_NA"
 
             with open("output/" + data['State'].lower() + ".csv", "a") as myFile:
                 writer = csv.DictWriter(myFile, fieldnames=fieldnames)
