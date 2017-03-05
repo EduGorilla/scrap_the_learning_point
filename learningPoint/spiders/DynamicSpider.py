@@ -30,16 +30,16 @@ class DynamicSpider(scrapy.Spider):
         print "Scraping Started for "+base_url+". Please wait..."
         make_sure_path_exists('output');
         make_sure_path_exists('status');
-        for counter in xrange(0, 57174, 10):
+        for counter in xrange(0, 55110, 10):
             url = base_url + str(counter)
-            print "Url to be scrapped for "+str(self.count_total_scrapped)+" : "+url;
+            #print "Url to be scrapped for "+str(self.count_total_scrapped)+" : "+url;
             yield scrapy.Request(url=url, callback=self.parse_page)
 
     def parse_page(self, response):
         schoolLinks = response.xpath('//td[@id="col0"]').css('div.sites-search-result h3 a::attr(href)').extract()
         for schoolLink in schoolLinks:
             link = response.urljoin(schoolLink);
-            link = "http://www.thelearningpoint.net/home/school-listings/icse-isc-4/Sacred-Heart-Convent-School---Barnala-Road-Raikot-Ludhiana-141-109";
+            #link = "http://www.thelearningpoint.net/home/school-listings/icse-isc-4/Sacred-Heart-Convent-School---Barnala-Road-Raikot-Ludhiana-141-109";
             #print "next schoolLinks", link
             # inp = input()
             try:
